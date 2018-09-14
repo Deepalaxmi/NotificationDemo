@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import UserNotifications
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -16,6 +17,19 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        //setting min interval for background fetch
+        UIApplication.shared.setMinimumBackgroundFetchInterval(UIApplicationBackgroundFetchIntervalMinimum)
+        
+        // authorization for local notification
+        UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .badge, .sound]) { (permissionGranted, error) in
+            if permissionGranted {
+                print("permissionGranted")
+            }else{
+                print("not permissionGranted")
+            }
+            
+        }
         return true
     }
 
@@ -41,6 +55,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
     }
 
+    
+    func application(_ application: UIApplication, performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if let vc = window?.rootViewController as? ViewController {
+            print("performFetchWithCompletionHandler")
+            vc.fetch {
+                print("fetch completion")
+                vc.updateUI()
+                completionHandler(.newData)
+            }
+        }
+    }
 
 }
 
